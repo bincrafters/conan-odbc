@@ -11,8 +11,8 @@ class OdbcConan(ConanFile):
     default_options = 'shared=False'
     url = 'http://bitbucket-idb:7990/scm/tp/conan-odbc.git'
     license = 'LGPL/GPL'
-    source_subfolder = "source_subfolder"
-    install_subfolder = "install_subfolder"
+    source_subfolder = 'source_subfolder'
+    install_subfolder = 'install_subfolder'
 
     def configure(self):
         del self.settings.compiler.libcxx  # Pure C
@@ -41,20 +41,25 @@ class OdbcConan(ConanFile):
     def package(self):
         if self.settings.os == 'Windows':
             return
-        inc_src = os.path.join(self.install_subfolder, "include")
-        lib_src = os.path.join(self.install_subfolder, "lib")
-        bin_src = os.path.join(self.install_subfolder, "bin")
-        self.copy("LICENSE*", src=self.source_subfolder)
-        self.copy("*.h",      dst="include", src=inc_src, keep_path=False)
-        self.copy("*.dylib",  dst="lib",     src=lib_src, keep_path=False)
-        self.copy("*.so",     dst="lib",     src=lib_src, keep_path=False)
-        self.copy("*.so.*",   dst="lib",     src=lib_src, keep_path=False)
-        self.copy("*.a",      dst="lib",     src=lib_src, keep_path=False)
-        self.copy("*.la",     dst="lib",     src=lib_src, keep_path=False)
-        self.copy("*",        dst="bin",     src=bin_src, keep_path=False)
+        inc_src = os.path.join(self.install_subfolder, 'include')
+        lib_src = os.path.join(self.install_subfolder, 'lib')
+        bin_src = os.path.join(self.install_subfolder, 'bin')
+        self.copy('LICENSE*', src=self.source_subfolder)
+        self.copy('*.h',      dst='include', src=inc_src, keep_path=False)
+        self.copy('*.dylib',  dst='lib',     src=lib_src, keep_path=False)
+        self.copy('*.so',     dst='lib',     src=lib_src, keep_path=False)
+        self.copy('*.so.*',   dst='lib',     src=lib_src, keep_path=False)
+        self.copy('*.a',      dst='lib',     src=lib_src, keep_path=False)
+        self.copy('*.la',     dst='lib',     src=lib_src, keep_path=False)
+        self.copy('*',        dst='bin',     src=bin_src, keep_path=False)
 
     def package_info(self):
         if self.settings.os == 'Windows':
             self.cpp_info.libs = ['odbc32', 'odbccp32']
         else:
             self.cpp_info.libs = ['odbc', 'odbccr', 'odbcinst', 'ltdl']
+            if self.settings.os == 'Linux':
+                self.cpp_info.libs.append('dl')
+            elif self.settings.os == 'Macos':
+                self.cpp_info.libs.append('iconv')
+
