@@ -6,16 +6,22 @@ class OdbcConan(ConanFile):
     name = 'odbc'
     version = '2.3.5'
     description = 'Package providing unixODBC or Microsoft ODBC'
-    settings = 'os', 'compiler', 'build_type', 'arch'
-    options = {'shared': [True, False]}
-    default_options = 'shared=False'
-    url = 'http://bitbucket-idb:7990/scm/tp/conan-odbc.git'
+    url = 'https://github.com/bincrafters/conan-odbc'
+
     license = 'LGPL/GPL'
+    exports = ['LICENSE.md']
+
+    settings = 'os', 'compiler', 'build_type', 'arch'
+    options = {'shared': [True, False], 'fPIC': [True, False]}
+    default_options = 'shared=False', 'fPIC=True'
+
     source_subfolder = 'source_subfolder'
     install_subfolder = 'install_subfolder'
 
     def configure(self):
         del self.settings.compiler.libcxx  # Pure C
+        if self.settings.compiler == 'Visual Studio':
+            del self.options.fPIC
 
     def source(self):
         if self.settings.os == 'Windows':
@@ -34,6 +40,8 @@ class OdbcConan(ConanFile):
         shared_flag = 'yes' if self.options.shared else 'no'
         args = ['--enable-static=%s' % static_flag, '--enable-shared=%s' % shared_flag,
                 '--enable-ltdl-install', '--prefix=%s' % os.path.realpath(self.install_subfolder)]
+        if self.settings.compiler != 'Visual Studio' and self.options.fPIC:
+            args.append('--with-pic=yes')
         env_build.configure(configure_dir=self.source_subfolder, args=args)
         env_build.make(args=['-j16'])
         env_build.make(args=['install'])
