@@ -4,6 +4,7 @@ env:
      - CONAN_REFERENCE: "odbc/2.3.5"
      - CONAN_USERNAME: "sourcedelica"
      - CONAN_LOGIN_USERNAME: "sourcedelica"
+     - CONAN_UPLOAD: "https://api.bintray.com/conan/sourcedelica/public-conan"
      - CONAN_CHANNEL: "testing"
      
 linux: &linux
