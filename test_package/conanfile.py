@@ -1,4 +1,4 @@
-from conans import ConanFile, CMake
+from conans import ConanFile, CMake, RunEnvironment, tools
 import os
 
 
@@ -17,3 +17,7 @@ class FalconTestConan(ConanFile):
     def test(self):
         os.chdir("bin")
         self.run(os.path.join('.', 'example'))
+
+        run_env = RunEnvironment(self)
+        with tools.environment_append(run_env.vars):
+            self.run('odbcinst --version')

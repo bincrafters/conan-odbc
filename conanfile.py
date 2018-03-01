@@ -59,9 +59,13 @@ class OdbcConan(ConanFile):
         self.copy('*.so.*',   dst='lib',     src=lib_src, keep_path=False)
         self.copy('*.a',      dst='lib',     src=lib_src, keep_path=False)
         self.copy('*.la',     dst='lib',     src=lib_src, keep_path=False)
-        self.copy('*',        dst='bin',     src=bin_src, keep_path=False)
+        # Note: odbc_config is excluded because it has build directory paths compiled into it,
+        # and because Conan provides the same sort of information
+        self.copy('*',        dst='bin',     src=bin_src, keep_path=False, excludes='odbc_config')
 
     def package_info(self):
+        self.env_info.path.append(os.path.join(self.package_folder, 'bin'))
+
         if self.settings.os == 'Windows':
             self.cpp_info.libs = ['odbc32', 'odbccp32']
         else:
@@ -70,4 +74,3 @@ class OdbcConan(ConanFile):
                 self.cpp_info.libs.append('dl')
             elif self.settings.os == 'Macos':
                 self.cpp_info.libs.append('iconv')
-
