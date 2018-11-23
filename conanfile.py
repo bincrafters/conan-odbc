@@ -4,7 +4,7 @@ from conans import ConanFile, AutoToolsBuildEnvironment, tools
 
 class OdbcConan(ConanFile):
     name = 'odbc'
-    version = '2.3.5'
+    version = '2.3.7'
     description = 'Package providing unixODBC or Microsoft ODBC'
     url = 'https://github.com/bincrafters/conan-odbc'
 
