@@ -24,9 +24,8 @@ class OdbcConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        v = self.version
-        source_url = 'https://iweb.dl.sourceforge.net/project/unixodbc/unixODBC/%s/unixODBC-%s.tar.gz' % (v, v)
-        tools.get(source_url)
+        source_url = 'http://www.unixodbc.org/unixODBC-%s.tar.gz' % self.version
+        tools.get(source_url, sha256="45f169ba1f454a72b8fcbb82abd832630a3bf93baa84731cf2949f449e1e3e77")
         extracted_dir = 'unixODBC-%s' % self.version
         os.rename(extracted_dir, self._source_subfolder)
 
