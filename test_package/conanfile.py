@@ -15,7 +15,6 @@ class FalconTestConan(ConanFile):
         self.copy("*.dll", "bin", "bin")
 
     def test(self):
-        os.chdir("bin")
-        self.run(os.path.join('.', 'example'))
-
-        self.run('odbcinst --version', run_environment=True)
+        self.run(os.path.join('bin', 'example'))
+        if self.settings.os != "Windows":
+            self.run('odbcinst --version', run_environment=True)

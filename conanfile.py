@@ -20,12 +20,10 @@ class OdbcConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx  # Pure C
-        if self.settings.compiler == 'Visual Studio':
+        if self.settings.os == "Windows":
             del self.options.fPIC
 
     def source(self):
-        if self.settings.os == 'Windows':
-            return
         v = self.version
         source_url = 'https://iweb.dl.sourceforge.net/project/unixodbc/unixODBC/%s/unixODBC-%s.tar.gz' % (v, v)
         tools.get(source_url)
@@ -38,30 +36,25 @@ class OdbcConan(ConanFile):
         env_build = AutoToolsBuildEnvironment(self)
         static_flag = 'no' if self.options.shared else 'yes'
         shared_flag = 'yes' if self.options.shared else 'no'
-        args = ['--enable-static=%s' % static_flag, '--enable-shared=%s' % shared_flag,
-                '--enable-ltdl-install', '--prefix=%s' % os.path.realpath(self._install_subfolder)]
-        if self.settings.compiler != 'Visual Studio' and self.options.fPIC:
-            args.append('--with-pic=yes')
+        args = ['--enable-static=%s' % static_flag,
+                '--enable-shared=%s' % shared_flag,
+                '--enable-ltdl-install']
+
         env_build.configure(configure_dir=self._source_subfolder, args=args)
-        env_build.make(args=['-j16'])
-        env_build.make(args=['install'])
+        env_build.make()
+        env_build.install()
 
     def package(self):
-        if self.settings.os == 'Windows':
-            return
-        inc_src = os.path.join(self._install_subfolder, 'include')
-        lib_src = os.path.join(self._install_subfolder, 'lib')
-        bin_src = os.path.join(self._install_subfolder, 'bin')
-        self.copy('LICENSE*', src=self._source_subfolder)
-        self.copy('*.h',      dst='include', src=inc_src, keep_path=False)
-        self.copy('*.dylib',  dst='lib',     src=lib_src, keep_path=False)
-        self.copy('*.so',     dst='lib',     src=lib_src, keep_path=False)
-        self.copy('*.so.*',   dst='lib',     src=lib_src, keep_path=False)
-        self.copy('*.a',      dst='lib',     src=lib_src, keep_path=False)
-        self.copy('*.la',     dst='lib',     src=lib_src, keep_path=False)
-        # Note: odbc_config is excluded because it has build directory paths compiled into it,
-        # and because Conan provides the same sort of information
-        self.copy('*',        dst='bin',     src=bin_src, keep_path=False, excludes='odbc_config')
+        self.copy('LICENSE*', src=self._source_subfolder, dst="licenses")
+
+    def package_id(self):
+        if self.settings.os == "Windows":
+            self.info.settings.arch = "ANY"
+            self.info.settings.build_type = "ANY"
+            self.info.settings.compiler = "ANY"
+            self.info.settings.compiler.version = "ANY"
+            self.info.settings.compiler.runtime = "ANY"
+            self.info.settings.compiler.toolset = "ANY"
 
     def package_info(self):
         self.env_info.path.append(os.path.join(self.package_folder, 'bin'))
@@ -72,5 +65,3 @@ class OdbcConan(ConanFile):
             self.cpp_info.libs = ['odbc', 'odbccr', 'odbcinst', 'ltdl']
             if self.settings.os == 'Linux':
                 self.cpp_info.libs.append('dl')
-            elif self.settings.os == 'Macos':
-                self.cpp_info.libs.append('iconv')
