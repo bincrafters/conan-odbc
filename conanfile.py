@@ -64,3 +64,5 @@ class OdbcConan(ConanFile):
             self.cpp_info.libs = ['odbc', 'odbccr', 'odbcinst', 'ltdl']
             if self.settings.os == 'Linux':
                 self.cpp_info.libs.append('dl')
+            if self.settings.os == 'Macos':
+                self.cpp_info.libs.append('iconv')
