@@ -13,10 +13,10 @@ class OdbcConan(ConanFile):
 
     settings = 'os', 'compiler', 'build_type', 'arch'
     options = {'shared': [True, False], 'fPIC': [True, False]}
-    default_options = 'shared=False', 'fPIC=True'
+    default_options = {'shared': False, 'fPIC': True}
 
-    source_subfolder = 'source_subfolder'
-    install_subfolder = 'install_subfolder'
+    _source_subfolder = 'source_subfolder'
+    _install_subfolder = 'install_subfolder'
 
     def configure(self):
         del self.settings.compiler.libcxx  # Pure C
@@ -30,7 +30,7 @@ class OdbcConan(ConanFile):
         source_url = 'https://iweb.dl.sourceforge.net/project/unixodbc/unixODBC/%s/unixODBC-%s.tar.gz' % (v, v)
         tools.get(source_url)
         extracted_dir = 'unixODBC-%s' % self.version
-        os.rename(extracted_dir, self.source_subfolder)
+        os.rename(extracted_dir, self._source_subfolder)
 
     def build(self):
         if self.settings.os == 'Windows':
@@ -39,20 +39,20 @@ class OdbcConan(ConanFile):
         static_flag = 'no' if self.options.shared else 'yes'
         shared_flag = 'yes' if self.options.shared else 'no'
         args = ['--enable-static=%s' % static_flag, '--enable-shared=%s' % shared_flag,
-                '--enable-ltdl-install', '--prefix=%s' % os.path.realpath(self.install_subfolder)]
+                '--enable-ltdl-install', '--prefix=%s' % os.path.realpath(self._install_subfolder)]
         if self.settings.compiler != 'Visual Studio' and self.options.fPIC:
             args.append('--with-pic=yes')
-        env_build.configure(configure_dir=self.source_subfolder, args=args)
+        env_build.configure(configure_dir=self._source_subfolder, args=args)
         env_build.make(args=['-j16'])
         env_build.make(args=['install'])
 
     def package(self):
         if self.settings.os == 'Windows':
             return
-        inc_src = os.path.join(self.install_subfolder, 'include')
-        lib_src = os.path.join(self.install_subfolder, 'lib')
-        bin_src = os.path.join(self.install_subfolder, 'bin')
-        self.copy('LICENSE*', src=self.source_subfolder)
+        inc_src = os.path.join(self._install_subfolder, 'include')
+        lib_src = os.path.join(self._install_subfolder, 'lib')
+        bin_src = os.path.join(self._install_subfolder, 'bin')
+        self.copy('LICENSE*', src=self._source_subfolder)
         self.copy('*.h',      dst='include', src=inc_src, keep_path=False)
         self.copy('*.dylib',  dst='lib',     src=lib_src, keep_path=False)
         self.copy('*.so',     dst='lib',     src=lib_src, keep_path=False)

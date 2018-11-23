@@ -18,6 +18,4 @@ class FalconTestConan(ConanFile):
         os.chdir("bin")
         self.run(os.path.join('.', 'example'))
 
-        run_env = RunEnvironment(self)
-        with tools.environment_append(run_env.vars):
-            self.run('odbcinst --version')
+        self.run('odbcinst --version', run_environment=True)
