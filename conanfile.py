@@ -1,5 +1,6 @@
 import os
 from conans import ConanFile, AutoToolsBuildEnvironment, tools
+from conans.errors import ConanInvalidConfiguration
 
 
 class OdbcConan(ConanFile):
@@ -20,6 +21,10 @@ class OdbcConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx  # Pure C
+        if self.settings.os == "Windows" and not self.options.shared:
+            raise ConanInvalidConfiguration("Only shared library is supported on Windows")
+
+    def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
 
@@ -48,12 +53,9 @@ class OdbcConan(ConanFile):
 
     def package_id(self):
         if self.settings.os == "Windows":
-            self.info.settings.arch = "ANY"
-            self.info.settings.build_type = "ANY"
-            self.info.settings.compiler = "ANY"
-            self.info.settings.compiler.version = "ANY"
-            self.info.settings.compiler.runtime = "ANY"
-            self.info.settings.compiler.toolset = "ANY"
+            del self.info.settings.arch
+            del self.info.settings.build_type
+            del self.info.settings.compiler
 
     def package_info(self):
         self.env_info.path.append(os.path.join(self.package_folder, 'bin'))
