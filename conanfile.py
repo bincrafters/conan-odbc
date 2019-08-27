@@ -21,6 +21,7 @@ class OdbcConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx  # Pure C
+        del self.settings.compiler.cppstd
         if self.settings.os == "Windows" and not self.options.shared:
             raise ConanInvalidConfiguration("Only shared library is supported on Windows")
 
